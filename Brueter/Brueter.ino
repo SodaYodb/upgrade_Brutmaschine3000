@@ -1,6 +1,8 @@
 // for display
 #include <Elegoo_GFX.h>
 #include <Elegoo_TFTLCD.h>
+// for touch
+#include <TouchScreen.h>
 // for DHT22 Sensors
 #include <DHT.h>
 
@@ -57,7 +59,7 @@ void setup() {
   tft.begin(identifier);
   build_gui(); // generate GUI
   update_temp(30.0); // DUMMY provide value for update it on screen
-  update_humd(100); // DUMMY provide value for update it on screen
+  update_humd(100.00); // DUMMY provide value for update it on screen
   update_target(32.0); // DUMMY provide value for update it on screen
   check_started(started);
   
@@ -106,7 +108,7 @@ void update_temp(float prov_temperature){
   tft.setCursor(5, 20);
   tft.setTextColor(CYAN);
   tft.setTextSize(3);
-  tft.println(prov_temperature);
+  tft.print(prov_temperature,1);
 }
 
 void update_humd(int prov_humidity){
@@ -120,7 +122,7 @@ void update_target(float prov_target){
   tft.setCursor(118, 212);
   tft.setTextColor(MAGENTA);
   tft.setTextSize(3);
-  tft.print(prov_target);
+  tft.print(prov_target,1);
 }
 
 void check_started(bool is_started){
@@ -135,6 +137,7 @@ void check_started(bool is_started){
 
 void loop() {
   // check temp. sensors, print Failure if one or both can't be read. Maybe print in Mid Section?
+  // isnan
   hum1 = dht_top.readHumidity();
   temp1 = dht_top.readTemperature();
   hum2 = dht_bot.readHumidity();
@@ -143,7 +146,7 @@ void loop() {
   // if the values are too far apart = activate fan // if they are close enought stop fan
   // display mean temp. -- just update this Section of the Screen
   // display mean humd. -- just update this Section of the Screen
-  // buttons for "Auto" - "Stop" and temperature Correction Act Val, Arrow up and Down for 0,1°C
+  // buttons for "Start" - "Stop" and temperature Correction Act Val, Arrow up and Down for 0,1°C
   // stirrer is continuously on
   // heating algorithm based on the set value
   
