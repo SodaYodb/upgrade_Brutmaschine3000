@@ -9,4 +9,4 @@ ToDo:
 - heating algorithm based on the set value
 
 ## GUI
-![actual Version of the Graphical User Interface] (https://share-your-photo.com/a247c6cf51)
+![actual Version of the Graphical User Interface](https://share-your-photo.com/a247c6cf51)
