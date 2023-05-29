@@ -7,3 +7,6 @@ ToDo:
 - buttons for "Auto" - "Stop" and temperature Correction Act Val, Arrow up and Down for 0,1°C
 - stirrer is continuously on
 - heating algorithm based on the set value
+
+## GUI
+![actual Version of the Graphical User Interface] (https://share-your-photo.com/a247c6cf51)
