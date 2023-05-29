@@ -29,9 +29,21 @@ Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 DHT dht_top(DHT1_PIN, DHTTYPE);
 DHT dht_bot(DHT2_PIN, DHTTYPE);
+float hum1, hum2, temp1, temp2;
+
+// define relais
+int relais[] = {49,51,53};
+
+// some variables
+bool started = false;
 
 // ------------------------------------------------------------------
 void setup() {
+  // define pinMode for relais and turn all off at Start
+  for (int i=0; i<3; i++){
+    pinMode(relais[i], OUTPUT);
+    digitalWrite(relais[i], LOW);
+  }
   tft.reset(); // Clear Screen
   // find correct identifier
   uint16_t identifier = tft.readID();
@@ -44,9 +56,10 @@ void setup() {
   }
   tft.begin(identifier);
   build_gui(); // generate GUI
-  update_temp(30.0); // provide value for update it on screen
-  update_humd(100); // provide value for update it on screen
-  update_target(32.0); // provide value for update it on screen
+  update_temp(30.0); // DUMMY provide value for update it on screen
+  update_humd(100); // DUMMY provide value for update it on screen
+  update_target(32.0); // DUMMY provide value for update it on screen
+  check_started(started);
   
 } // END VOID SETUP --------------------------------------------------
 
@@ -110,8 +123,23 @@ void update_target(float prov_target){
   tft.print(prov_target);
 }
 
+void check_started(bool is_started){
+  tft.setCursor(227, 13); tft.setTextColor(MAGENTA); tft.setTextSize(3);
+  if(is_started == true){
+    tft.print("Stop");
+  }
+  else{
+    tft.print("Start");
+  }
+}
+
 void loop() {
   // check temp. sensors, print Failure if one or both can't be read
+  hum1 = dht_top.readHumidity();
+  temp1 = dht_top.readTemperature();
+  hum2 = dht_bot.readHumidity();
+  temp2= dht_bot.readTemperature();
+  
   // if the values are too far apart = activate fan // if they are close enought stop fan
   // display mean temp. -- just update this Section of the Screen
   // display mean humd. -- just update this Section of the Screen
