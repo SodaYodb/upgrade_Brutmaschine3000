@@ -9,3 +9,5 @@
 - heating algorithm based on the set value
 
 ## GUI
+- one color for all "buttons"
+- another color for not editiable values (e.q. Sensor Values)
