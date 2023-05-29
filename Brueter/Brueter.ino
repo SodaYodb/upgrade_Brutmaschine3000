@@ -6,7 +6,7 @@
 // for DHT22 Sensors
 #include <DHT.h>
 
-// define TFT Pinout
+// define TFT pinout
 #define LCD_CS A3
 #define LCD_CD A2
 #define LCD_WR A1
@@ -14,7 +14,21 @@
 #define LCD_RESET A4
 Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
-// define some Colors
+// define touch pinout and stuff
+#define YP A3
+#define XM A2
+#define YM 9
+#define XP 8
+#define TS_MINX 120
+#define TS_MAXX 900
+#define TS_MINY 70
+#define TS_MAXY 920
+#define MINPRESSURE 10
+#define MAXPRESSURE 1000
+
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
+
+// define some colors
 #define BLACK   0x0000
 #define BLUE    0x001F
 #define RED     0xF800
@@ -28,7 +42,6 @@ Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 #define DHT1_PIN 31 // Top
 #define DHT2_PIN 33 // Bottom
 #define DHTTYPE DHT22
-
 DHT dht_top(DHT1_PIN, DHTTYPE);
 DHT dht_bot(DHT2_PIN, DHTTYPE);
 float hum1, hum2, temp1, temp2;
@@ -138,10 +151,29 @@ void check_started(bool is_started){
 void loop() {
   // check temp. sensors, print Failure if one or both can't be read. Maybe print in Mid Section?
   // isnan
-  hum1 = dht_top.readHumidity();
+  /*hum1 = dht_top.readHumidity();
   temp1 = dht_top.readTemperature();
   hum2 = dht_bot.readHumidity();
-  temp2= dht_bot.readTemperature();
+  temp2= dht_bot.readTemperature();*/
+  
+  // get touch info and scale it
+  TSPoint p = ts.getPoint();
+  pinMode(XM, OUTPUT);
+  pinMode(YP, OUTPUT);
+  if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+    // scale from 0->1023 to tft.width
+    // Zero is Top-Left Corner
+    p.x = map(p.x, TS_MAXX, TS_MINX, tft.width(), 0); //cause of rotation 3 swapped MAXX and MINX
+    p.y = (tft.height() - map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+    
+    // just for check touch
+    tft.fillRect(5,120,34,29, BLACK); // Fill Black then write otherwise Values never disapear
+    tft.setCursor(5, 120); tft.setTextColor(GREEN); tft.setTextSize(2);
+    tft.print(p.x);
+    tft.setCursor(5, 135);
+    tft.print(p.y);
+  }
+  delay(10); // just for testing, use millies() later?
   
   // if the values are too far apart = activate fan // if they are close enought stop fan
   // display mean temp. -- just update this Section of the Screen
