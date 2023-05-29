@@ -80,10 +80,11 @@ void build_gui(){
   // Static Content Bot Section
   tft.setCursor(11, 192); tft.setTextColor(MAGENTA); tft.setTextSize(7);
   tft.print("-");
-  tft.setCursor(65, 192); tft.setTextColor(MAGENTA); tft.setTextSize(2);
-  tft.print("TARGET:");
-  tft.setCursor(275, 192); tft.setTextColor(MAGENTA); tft.setTextSize(7);
+  tft.setCursor(275, 192);
   tft.print("+");
+  tft.setCursor(65, 192); tft.setTextSize(2);
+  tft.print("TARGET:");
+
   
   
 } // END BUILD_GUI SETUP ---------------------------------------------
