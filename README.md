@@ -1,5 +1,5 @@
 # Brutautomat
-##ToDo:
+## ToDo:
 - check temp. sensors, print Failure if one or both can't be read
 - if the values are too far apart = activate fan // if they are close enought stop fan
 - display mean temp. -- just update this Section of the Screen
