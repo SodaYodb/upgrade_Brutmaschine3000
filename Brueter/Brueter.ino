@@ -117,28 +117,24 @@ void build_gui(){
   
 } // END BUILD_GUI SETUP ---------------------------------------------
 
+// would it be more performant to save the old Value and write it in Black before write the new Value?
 void update_temp(float prov_temperature){
-  tft.setCursor(5, 20);
-  tft.setTextColor(CYAN);
-  tft.setTextSize(3);
+  tft.fillRect(15,20,69,21, BLACK);
+  tft.setCursor(15, 20); tft.setTextColor(CYAN); tft.setTextSize(3);
   tft.print(prov_temperature,1);
 }
-
 void update_humd(int prov_humidity){
-  tft.setCursor(140, 20);
-  tft.setTextColor(CYAN);
-  tft.setTextSize(3);
+  tft.fillRect(135,20,51,21, BLACK);
+  tft.setCursor(135, 20); tft.setTextColor(CYAN); tft.setTextSize(3);
   tft.print(prov_humidity);
 }
-
 void update_target(float prov_target){
-  tft.setCursor(118, 212);
-  tft.setTextColor(MAGENTA);
-  tft.setTextSize(3);
+  tft.fillRect(118,212,69,21, BLACK);
+  tft.setCursor(118, 212); tft.setTextColor(MAGENTA); tft.setTextSize(3);
   tft.print(prov_target,1);
 }
-
 void check_started(bool is_started){
+  tft.fillRect(227,13,87,21, BLACK);
   tft.setCursor(227, 13); tft.setTextColor(MAGENTA); tft.setTextSize(3);
   if(is_started == true){
     tft.print("Stop");
