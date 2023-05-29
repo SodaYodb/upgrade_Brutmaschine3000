@@ -95,7 +95,7 @@ void build_gui(){
   tft.print("-");
   tft.setCursor(275, 192);
   tft.print("+");
-  tft.setCursor(65, 192); tft.setTextSize(2);
+  tft.setCursor(65, 192); tft.setTextColor(WHITE); tft.setTextSize(2);
   tft.print("TARGET:");
 
   
