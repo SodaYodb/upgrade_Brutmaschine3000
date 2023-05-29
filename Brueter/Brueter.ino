@@ -158,11 +158,11 @@ void loop() {
   pinMode(YP, OUTPUT);
   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
     // scale from 0->1023 to tft.width
-    // Zero is Top-Left Corner
+    // Zero is Top-Left Corner like the coordinates for drawing
     p.x = map(p.x, TS_MAXX, TS_MINX, tft.width(), 0); //cause of rotation 3 swapped MAXX and MINX
     p.y = (tft.height() - map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
     
-    // just for check touch
+    // just for check touch >> WORKS
     tft.fillRect(5,120,34,29, BLACK); // Fill Black then write otherwise Values never disapear
     tft.setCursor(5, 120); tft.setTextColor(GREEN); tft.setTextSize(2);
     tft.print(p.x);
