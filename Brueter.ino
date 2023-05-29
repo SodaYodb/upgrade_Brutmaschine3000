@@ -118,7 +118,7 @@ void update_humd(int prov_humidity){
 
 void update_target(float prov_target){
   tft.setCursor(118, 212);
-  tft.setTextColor(CYAN);
+  tft.setTextColor(MAGENTA);
   tft.setTextSize(3);
   tft.print(prov_target);
 }
