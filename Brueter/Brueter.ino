@@ -42,6 +42,7 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 #define EDITABLE_Color MAGENTA // Change Color for User editable Values here
 #define NONEDIT_Color CYAN     // Change Color for Non editable Values here
 #define DECORATON_Color WHITE  // Change Color for Decorations here
+#define WARNING_Color RED
 
 // define sensors ------------------
 #define DHT1_PIN 31 // Top
@@ -76,7 +77,7 @@ Relais Move(53);
 
 // some variables
 bool started = false;
-
+float temp_delta = 1.0; // delta for turn on or off the Fan
 
 // ------------------------------------------------------------------
 void setup() {
@@ -170,14 +171,32 @@ void check_started(bool is_started){
   }
 }
 
+void show_error(char* error_string){
+  tft.fillRect(5,52,315,16, BACKG_Color);
+  tft.setCursor(5, 52); tft.setTextColor(WARNING_Color); tft.setTextSize(2);
+  tft.print(error_string);
+}
+
 void loop() {
-  // check temp. sensors, print Failure if one or both can't be read. Maybe print in Mid Section?
-  // isnan  
-  /*hum1 = dht_top.readHumidity();
+  // get Sensor Values and Check if there is a NaN
+  hum1 = dht_top.readHumidity();
   temp1 = dht_top.readTemperature();
   hum2 = dht_bot.readHumidity();
-  temp2= dht_bot.readTemperature();*/
-
+  temp2= dht_bot.readTemperature();
+  if (isnan(hum1) || isnan(temp1)) {
+    show_error("Top Sensor Failed");
+  }
+  if (isnan(hum2) || isnan(temp2)) {
+    show_error("Bottom Sensor Failed");
+  }
+  // check if greater or lower then temp_delta to turn on or off the Fan
+  float diff1 = temp1 - temp2;
+  float diff2 = temp2 - temp1;
+  if (diff1 > temp_delta || diff2 > temp_delta) {
+  Fan.on();} 
+  else{
+  Fan.off();}
+  
   // Control Relais by name with [Name].on() // [Name].off()
   //Fan.on();
   //Heat.on();
