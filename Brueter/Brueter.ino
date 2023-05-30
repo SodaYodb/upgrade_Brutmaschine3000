@@ -109,7 +109,7 @@ void build_gui(){
   // Display Size 320 widht in Rotation 3
   // Display Size 240 hight in Rotation 3
   tft.setRotation(3);  // 0-3
-  tft.fillScreen(BLACK); // Background Color for Display
+  tft.fillScreen(BACKG_Color); // Background Color for Display
 
   // Top Section
   tft.drawLine(0, 50, 320, 50, DECORATON_Color);
@@ -226,7 +226,7 @@ void loop() {
     tft.setCursor(5, 135);
     tft.print(p.y);
   }
-  delay(10); // just for testing, use millies() later?
+  delay(50); // just for testing, use millies() later?
   
   // if the values are too far apart = activate fan // if they are close enought stop fan
   // display mean temp. -- just update this Section of the Screen
