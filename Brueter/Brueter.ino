@@ -52,13 +52,13 @@ DHT dht_bot(DHT2_PIN, DHTTYPE);
 float hum1, hum2, temp1, temp2;
 
 // define relais --------------------
-const byte pins[] = {49, 51, 53};
 class Relais{
   private:
     byte _pin;
    public:
     Relais(){
-      // some Error handling here}
+      // some Error handling here
+      }
     Relais(byte pin){
       _pin = pin;}
     void init(){
@@ -69,10 +69,10 @@ class Relais{
     void on() {
       digitalWrite(_pin, HIGH);}
   };
-Relais Fan(pins[0]);
-Relais Heat(pins[1]);
-Relais Move(pins[2]);
-
+// PinNumber by consturct should be better for understand what pins for what
+Relais Fan(49);
+Relais Heat(51);
+Relais Move(53);
 
 // some variables
 bool started = false;
@@ -182,7 +182,6 @@ void loop() {
   //Fan.on();
   //Heat.on();
   //Move.on();
-  
   
   // get touch info and scale it
   TSPoint p = ts.getPoint();
