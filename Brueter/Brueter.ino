@@ -38,7 +38,12 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 #define YELLOW  0xFFE0
 #define WHITE   0xFFFF
 
-// define sensors
+#define BACKG_Color BLACK      // Change Background Color here
+#define EDITABLE_Color MAGENTA // Change Color for User editable Values here
+#define NONEDIT_Color CYAN     // Change Color for Non editable Values here
+#define DECORATON_Color WHITE  // Change Color for Decorations here
+
+// define sensors ------------------
 #define DHT1_PIN 31 // Top
 #define DHT2_PIN 33 // Bottom
 #define DHTTYPE DHT22
@@ -46,19 +51,42 @@ DHT dht_top(DHT1_PIN, DHTTYPE);
 DHT dht_bot(DHT2_PIN, DHTTYPE);
 float hum1, hum2, temp1, temp2;
 
-// define relais
-int relais[] = {49,51,53};
+// define relais --------------------
+const byte pins[] = {49, 51, 53};
+class Relais{
+  private:
+    byte _pin;
+   public:
+    Relais(){
+      // some Error handling here
+      }
+    Relais(byte pin){
+      _pin = pin;
+      }
+    void init(){
+      pinMode(_pin, OUTPUT);
+      off();}
+    void off(){
+      digitalWrite(_pin, LOW);}
+    void on() {
+      digitalWrite(_pin, HIGH);}
+  };
+Relais Fan(pins[0]);
+Relais Heat(pins[1]);
+Relais Move(pins[2]);
+
 
 // some variables
 bool started = false;
 
+
 // ------------------------------------------------------------------
 void setup() {
-  // define pinMode for relais and turn all off at Start
-  for (int i=0; i<3; i++){
-    pinMode(relais[i], OUTPUT);
-    digitalWrite(relais[i], LOW);
-  }
+  // init the Relais // default = LOW
+  Fan.init();
+  Heat.init();
+  Move.init();
+  
   tft.reset(); // Clear Screen
   // find correct identifier
   uint16_t identifier = tft.readID();
@@ -85,16 +113,16 @@ void build_gui(){
   tft.fillScreen(BLACK); // Background Color for Display
 
   // Top Section
-  tft.drawLine(0, 50, 320, 50, WHITE);
-  tft.drawLine(100, 0, 100, 50, WHITE);
-  tft.drawLine(220, 0, 220, 50, WHITE);
+  tft.drawLine(0, 50, 320, 50, DECORATON_Color);
+  tft.drawLine(100, 0, 100, 50, DECORATON_Color);
+  tft.drawLine(220, 0, 220, 50, DECORATON_Color);
   // Static Content Top Section
   tft.setCursor(5, 0);
-  tft.setTextColor(WHITE);
+  tft.setTextColor(DECORATON_Color);
   tft.setTextSize(2);
   tft.print("TEMP:");
   tft.setCursor(105, 0);
-  tft.setTextColor(WHITE);
+  tft.setTextColor(DECORATON_Color);
   tft.setTextSize(2);
   tft.print("HUMIDITY:");
 
@@ -102,15 +130,15 @@ void build_gui(){
   
 
   // Bottom Section
-  tft.drawLine(0, 190, 320, 190, WHITE);
-  tft.drawLine(60, 190, 60, 240, WHITE);
-  tft.drawLine(260, 190, 260, 240, WHITE);
+  tft.drawLine(0, 190, 320, 190, DECORATON_Color);
+  tft.drawLine(60, 190, 60, 240, DECORATON_Color);
+  tft.drawLine(260, 190, 260, 240, DECORATON_Color);
   // Static Content Bot Section
-  tft.setCursor(11, 192); tft.setTextColor(MAGENTA); tft.setTextSize(7);
+  tft.setCursor(11, 192); tft.setTextColor(EDITABLE_Color); tft.setTextSize(7);
   tft.print("-");
   tft.setCursor(275, 192);
   tft.print("+");
-  tft.setCursor(65, 192); tft.setTextColor(WHITE); tft.setTextSize(2);
+  tft.setCursor(65, 192); tft.setTextColor(DECORATON_Color); tft.setTextSize(2);
   tft.print("TARGET:");
 
   
@@ -119,23 +147,23 @@ void build_gui(){
 
 // would it be more performant to save the old Value and write it in Black before write the new Value?
 void update_temp(float prov_temperature){
-  tft.fillRect(15,20,69,21, BLACK);
-  tft.setCursor(15, 20); tft.setTextColor(CYAN); tft.setTextSize(3);
+  tft.fillRect(15,20,69,21, BACKG_Color);
+  tft.setCursor(15, 20); tft.setTextColor(NONEDIT_Color); tft.setTextSize(3);
   tft.print(prov_temperature,1);
 }
 void update_humd(int prov_humidity){
-  tft.fillRect(135,20,51,21, BLACK);
-  tft.setCursor(135, 20); tft.setTextColor(CYAN); tft.setTextSize(3);
+  tft.fillRect(135,20,51,21, BACKG_Color);
+  tft.setCursor(135, 20); tft.setTextColor(NONEDIT_Color); tft.setTextSize(3);
   tft.print(prov_humidity);
 }
 void update_target(float prov_target){
-  tft.fillRect(118,212,69,21, BLACK);
-  tft.setCursor(118, 212); tft.setTextColor(MAGENTA); tft.setTextSize(3);
+  tft.fillRect(118,212,69,21, BACKG_Color);
+  tft.setCursor(118, 212); tft.setTextColor(EDITABLE_Color); tft.setTextSize(3);
   tft.print(prov_target,1);
 }
 void check_started(bool is_started){
-  tft.fillRect(227,13,87,21, BLACK);
-  tft.setCursor(227, 13); tft.setTextColor(MAGENTA); tft.setTextSize(3);
+  tft.fillRect(227,13,87,21, BACKG_Color);
+  tft.setCursor(227, 13); tft.setTextColor(EDITABLE_Color); tft.setTextSize(3);
   if(is_started == true){
     tft.print("Stop");
   }
@@ -146,11 +174,17 @@ void check_started(bool is_started){
 
 void loop() {
   // check temp. sensors, print Failure if one or both can't be read. Maybe print in Mid Section?
-  // isnan
+  // isnan  
   /*hum1 = dht_top.readHumidity();
   temp1 = dht_top.readTemperature();
   hum2 = dht_bot.readHumidity();
   temp2= dht_bot.readTemperature();*/
+
+  // Control Relais by name with [Name].on() // [Name].off()
+  Fan.on();
+  Heat.on();
+  Move.on();
+  
   
   // get touch info and scale it
   TSPoint p = ts.getPoint();
