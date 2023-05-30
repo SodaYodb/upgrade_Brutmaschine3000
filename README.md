@@ -9,6 +9,9 @@
 - stirrer is continuously on
 - heating algorithm based on the set value
 
+## FEATURES LATER:
+- turn off all relais if box is open(ed)
+
 ## GUI
 - one color for all "buttons" with user action
 - another color for not editiable values (e.q. Sensor Values)
