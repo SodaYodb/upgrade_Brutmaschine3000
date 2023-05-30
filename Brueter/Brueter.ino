@@ -99,7 +99,7 @@ void setup() {
   tft.begin(identifier);
   build_gui(); // generate GUI
   update_temp(30.0); // DUMMY provide value for update it on screen
-  update_humd(100.00); // DUMMY provide value for update it on screen
+  update_hum(100.00); // DUMMY provide value for update it on screen
   update_target(32.0); // DUMMY provide value for update it on screen
   check_started(started);
   
@@ -150,7 +150,7 @@ void update_temp(float prov_temperature){
   tft.setCursor(15, 20); tft.setTextColor(NONEDIT_Color); tft.setTextSize(3);
   tft.print(prov_temperature,1);
 }
-void update_humd(int prov_humidity){
+void update_hum(int prov_humidity){
   tft.fillRect(135,20,51,21, BACKG_Color);
   tft.setCursor(135, 20); tft.setTextColor(NONEDIT_Color); tft.setTextSize(3);
   tft.print(prov_humidity);
@@ -183,19 +183,26 @@ void loop() {
   temp1 = dht_top.readTemperature();
   hum2 = dht_bot.readHumidity();
   temp2= dht_bot.readTemperature();
+  bool read_error = false;
   if (isnan(hum1) || isnan(temp1)) {
     show_error("Top Sensor Failed");
+    read_error = true;
   }
   if (isnan(hum2) || isnan(temp2)) {
     show_error("Bottom Sensor Failed");
+    read_error = true;
   }
   // check if greater or lower then temp_delta to turn on or off the Fan
-  float diff1 = temp1 - temp2;
-  float diff2 = temp2 - temp1;
-  if (diff1 > temp_delta || diff2 > temp_delta) {
-  Fan.on();} 
-  else{
-  Fan.off();}
+  if (!read_error){
+    float diff1 = temp1 - temp2;
+    float diff2 = temp2 - temp1;
+      if (diff1 > temp_delta || diff2 > temp_delta) {
+        Fan.on();} 
+      else{
+        Fan.off();}
+  // update temp and hum with mean values
+    update_temp((temp1 + temp2) / 2.0);
+    update_hum((hum1 + hum2) / 2.0);}
   
   // Control Relais by name with [Name].on() // [Name].off()
   //Fan.on();
