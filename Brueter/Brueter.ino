@@ -58,11 +58,9 @@ class Relais{
     byte _pin;
    public:
     Relais(){
-      // some Error handling here
-      }
+      // some Error handling here}
     Relais(byte pin){
-      _pin = pin;
-      }
+      _pin = pin;}
     void init(){
       pinMode(_pin, OUTPUT);
       off();}
@@ -181,9 +179,9 @@ void loop() {
   temp2= dht_bot.readTemperature();*/
 
   // Control Relais by name with [Name].on() // [Name].off()
-  Fan.on();
-  Heat.on();
-  Move.on();
+  //Fan.on();
+  //Heat.on();
+  //Move.on();
   
   
   // get touch info and scale it
