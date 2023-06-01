@@ -28,7 +28,15 @@ Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-// define some colors
+// define sensors ------------------ SENSOR
+#define DHT1_PIN 31 // Top
+#define DHT2_PIN 33 // Bottom
+#define DHTTYPE DHT22
+DHT dht_top(DHT1_PIN, DHTTYPE);
+DHT dht_bot(DHT2_PIN, DHTTYPE);
+float hum1, hum2, temp1, temp2;
+
+// define some colors -------------------- COLOR
 #define BLACK   0x0000
 #define BLUE    0x001F
 #define RED     0xF800
@@ -44,15 +52,7 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 #define DECORATON_Color WHITE  // Change Color for Decorations here
 #define WARNING_Color RED
 
-// define sensors ------------------
-#define DHT1_PIN 31 // Top
-#define DHT2_PIN 33 // Bottom
-#define DHTTYPE DHT22
-DHT dht_top(DHT1_PIN, DHTTYPE);
-DHT dht_bot(DHT2_PIN, DHTTYPE);
-float hum1, hum2, temp1, temp2;
-
-// define relais --------------------
+// define relais -------------------- RELAIS
 class Relais{
   private:
     byte _pin;
@@ -74,6 +74,28 @@ class Relais{
 Relais Fan(49);
 Relais Heat(51);
 Relais Move(53);
+
+// define buttons -------------------- RELAIS
+class TouchButton {
+  private:
+    int x;
+    int y;
+    int width;
+    int height;
+  public:
+    TouchButton(int _x, int _y, int _width, int _height) {
+      x = _x;
+      y = _y;
+      width = _width;
+      height = _height;}
+  
+    bool isPressed(int px, int py) {
+      return (px >= x && px <= x + width && py >= y && py <= y + height);}
+};
+
+TouchButton btn_toggle(220, 0, 100, 50); // Size of top left Box
+TouchButton btn_minus(0, 190, 60, 50); // Size of bottom left Box
+TouchButton btn_plus(260, 190, 60, 50); // Size of bottom right Box
 
 // some variables
 bool started = false;
@@ -139,7 +161,6 @@ void build_gui(){
   tft.print("+");
   tft.setCursor(65, 192); tft.setTextColor(DECORATON_Color); tft.setTextSize(2);
   tft.print("TARGET:");
-
   
   
 } // END BUILD_GUI SETUP ---------------------------------------------
@@ -214,25 +235,31 @@ void loop() {
   pinMode(XM, OUTPUT);
   pinMode(YP, OUTPUT);
   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-    // scale from 0->1023 to tft.width
     // Zero is Top-Left Corner like the coordinates for drawing
-    p.x = map(p.x, TS_MAXX, TS_MINX, tft.width(), 0); //cause of rotation 3 swapped MAXX and MINX
-    p.y = (tft.height() - map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+    p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.width());
+    p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.height());
     
-    // just for check touch >> WORKS
-    tft.fillRect(5,120,34,29, BLACK); // Fill Black then write otherwise Values never disapear
+    if (btn_plus.isPressed(p.y, p.x)) {
+      show_error("+");
+      //increment tagettemp +0.1
+      }
+    if (btn_minus.isPressed(p.y, p.x)) {
+      show_error("-");
+      //decrement tagettemp -0.1
+      }
+    if (btn_toggle.isPressed(p.y, p.x)) {
+      show_error("toggle");
+      // Start - Stop
+      }
+    
+    // just for check touch
+    /*tft.fillRect(5,120,60,29, BLACK); // Fill Black then write otherwise Values never disapear
     tft.setCursor(5, 120); tft.setTextColor(GREEN); tft.setTextSize(2);
-    tft.print(p.x);
-    tft.setCursor(5, 135);
+    tft.print("X ");
     tft.print(p.y);
-  }
-  delay(50); // just for testing, use millies() later?
-  
-  // if the values are too far apart = activate fan // if they are close enought stop fan
-  // display mean temp. -- just update this Section of the Screen
-  // display mean humd. -- just update this Section of the Screen
-  // buttons for "Start" - "Stop" and temperature Correction Act Val, Arrow up and Down for 0,1°C
-  // stirrer is continuously on
-  // heating algorithm based on the set value
-  
+    tft.setCursor(5, 135);
+    tft.print("Y ");
+    tft.print(p.x);*/
+  };
+  delay(50); // just for testing, use millies() later?  
 }
