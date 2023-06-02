@@ -1,13 +1,12 @@
 # Brutautomat
 ## ToDo:
-- ~~check temp. sensors, print Failure if one or both can't be read~~
-- ~~if the values are too far apart = activate fan // if they are close enought stop fan~~
-- ~~display mean temp. -- just update this Section of the Screen~~
-- ~~display mean humd. -- just update this Section of the Screen~~
-- ~~buttons for "Auto" - "Stop" and temperature Correction Act Val, + and - for 0,1°C~~
-  - check touch on button 
-- stirrer is continuously on
+- toggle Start-Stop by touch // btn_toggle.isPressed
+- var for Targettemp
+- increment Targettemp by touch // btn_plus.isPressed
+- decrement Targettemp by touch // btn_minus.isPressed
 - heating algorithm based on the set value
+- var Start-Stop (bool)
+- Move.on() my Start=True
 
 ### FEATURES LATER:
 - turn off all relais if box is open(ed)
