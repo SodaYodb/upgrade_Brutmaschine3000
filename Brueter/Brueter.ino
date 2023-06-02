@@ -251,8 +251,7 @@ void loop() {
         started = false;}
       else if (started == false) {
         started = true;}
-  
-  check_started(started);
+      check_started(started);
 }
     
     // just for check touch
