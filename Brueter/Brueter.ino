@@ -124,7 +124,6 @@ void setup() {
   update_hum(100.00); // DUMMY provide value for update it on screen
   update_target(32.0); // DUMMY provide value for update it on screen
   check_started(started);
-  
 } // END VOID SETUP --------------------------------------------------
 
 void build_gui(){
@@ -187,7 +186,7 @@ void check_started(bool is_started){
   if(is_started == true){
     tft.print("Stop");
   }
-  else{
+  else if(is_started == false){
     tft.print("Start");
   }
 }
@@ -248,9 +247,13 @@ void loop() {
       //decrement tagettemp -0.1
       }
     if (btn_toggle.isPressed(p.y, p.x)) {
-      show_error("toggle");
-      // Start - Stop
-      }
+      if (started == true) {
+        started = false;}
+      else if (started == false) {
+        started = true;}
+  
+  check_started(started);
+}
     
     // just for check touch
     /*tft.fillRect(5,120,60,29, BLACK); // Fill Black then write otherwise Values never disapear
