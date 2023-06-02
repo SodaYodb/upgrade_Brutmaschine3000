@@ -100,6 +100,7 @@ TouchButton btn_plus(260, 190, 60, 50); // Size of bottom right Box
 // some variables
 bool started = false;
 float temp_delta = 1.0; // delta for turn on or off the Fan
+float target_temp = 31.0;
 
 // ------------------------------------------------------------------
 void setup() {
@@ -122,7 +123,7 @@ void setup() {
   build_gui(); // generate GUI
   update_temp(30.0); // DUMMY provide value for update it on screen
   update_hum(100.00); // DUMMY provide value for update it on screen
-  update_target(32.0); // DUMMY provide value for update it on screen
+  update_target(target_temp);
   check_started(started);
 } // END VOID SETUP --------------------------------------------------
 
@@ -205,11 +206,11 @@ void loop() {
   temp2= dht_bot.readTemperature();
   bool read_error = false;
   if (isnan(hum1) || isnan(temp1)) {
-    show_error("Top Sensor Failed");
+    //show_error("Top Sensor Failed"); // ------------------------------------ACTIVATE LATER
     read_error = true;
   }
   if (isnan(hum2) || isnan(temp2)) {
-    show_error("Bottom Sensor Failed");
+    //show_error("Bottom Sensor Failed"); // ------------------------------------ACTIVATE LATER
     read_error = true;
   }
   // check if greater or lower then temp_delta to turn on or off the Fan
@@ -239,12 +240,14 @@ void loop() {
     p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.height());
     
     if (btn_plus.isPressed(p.y, p.x)) {
-      show_error("+");
       //increment tagettemp +0.1
+      target_temp = target_temp + 0.1;
+      update_target(target_temp);
       }
     if (btn_minus.isPressed(p.y, p.x)) {
-      show_error("-");
       //decrement tagettemp -0.1
+      target_temp = target_temp - 0.1;
+      update_target(target_temp);
       }
     if (btn_toggle.isPressed(p.y, p.x)) {
       if (started == true) {
@@ -263,5 +266,5 @@ void loop() {
     tft.print("Y ");
     tft.print(p.x);*/
   };
-  delay(50); // just for testing, use millies() later?  
+  delay(40); // just for testing, use millies() later?  
 }
