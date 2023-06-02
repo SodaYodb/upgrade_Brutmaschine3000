@@ -1,11 +1,11 @@
 # Brutautomat
 ## ToDo:
-- toggle Start-Stop by touch // btn_toggle.isPressed
-- var for Targettemp
-- increment Targettemp by touch // btn_plus.isPressed
-- decrement Targettemp by touch // btn_minus.isPressed
+- ~~toggle Start-Stop by touch // btn_toggle.isPressed~~
+- ~~var for Targettemp~~
+- ~~increment Targettemp by touch // btn_plus.isPressed~~
+- ~~decrement Targettemp by touch // btn_minus.isPressed~~
 - heating algorithm based on the set value
-- var Start-Stop (bool)
+- ~~var Start-Stop (bool)~~
 - Move.on() my Start=True
 
 ### FEATURES LATER:
