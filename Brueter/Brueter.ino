@@ -78,19 +78,22 @@ Relais Move(53);
 // define buttons -------------------- RELAIS
 class TouchButton {
   private:
-    int x;
-    int y;
-    int width;
-    int height;
+    int _x;
+    int _y;
+    int _width;
+    int _height;
   public:
-    TouchButton(int _x, int _y, int _width, int _height) {
-      x = _x;
-      y = _y;
-      width = _width;
-      height = _height;}
+    TouchButton(){
+      // some Error handling here
+      }
+    TouchButton(int x, int y, int width, int height) {
+      _x = x;
+      _y = y;
+      _width = width;
+      _height = height;}
   
     bool isPressed(int px, int py) {
-      return (px >= x && px <= x + width && py >= y && py <= y + height);}
+      return (px >= _x && px <= _x + _width && py >= _y && py <= _y + _height);}
 };
 
 TouchButton btn_toggle(220, 0, 100, 50); // Size of top left Box
@@ -113,14 +116,11 @@ void setup() {
   // find correct identifier
   uint16_t identifier = tft.readID();
   if(identifier==0x0101)
-  {
-      identifier=0x9341;
-  }
-  else {
-    identifier=0x9328;
-  }
+  {identifier=0x9341;}
+  else {identifier=0x9328;}
   tft.begin(identifier);
   build_gui(); // generate GUI
+  // Prefill some values to have something to show
   update_temp(30.0); // DUMMY provide value for update it on screen
   update_hum(100.00); // DUMMY provide value for update it on screen
   update_target(target_temp);
@@ -199,72 +199,68 @@ void show_error(char* error_string){
 }
 
 void loop() {
-  // get Sensor Values and Check if there is a NaN
-  hum1 = dht_top.readHumidity();
-  temp1 = dht_top.readTemperature();
-  hum2 = dht_bot.readHumidity();
-  temp2= dht_bot.readTemperature();
-  bool read_error = false;
-  if (isnan(hum1) || isnan(temp1)) {
-    //show_error("Top Sensor Failed"); // ------------------------------------ACTIVATE LATER
-    read_error = true;
-  }
-  if (isnan(hum2) || isnan(temp2)) {
-    //show_error("Bottom Sensor Failed"); // ------------------------------------ACTIVATE LATER
-    read_error = true;
-  }
-  // check if greater or lower then temp_delta to turn on or off the Fan
-  if (!read_error){
-    float diff1 = temp1 - temp2;
-    float diff2 = temp2 - temp1;
-      if (diff1 > temp_delta || diff2 > temp_delta) {
-        Fan.on();} 
-      else{
-        Fan.off();}
-  // update temp and hum with mean values
-    update_temp((temp1 + temp2) / 2.0);
-    update_hum((hum1 + hum2) / 2.0);}
+  // for millies()
+  static unsigned long sensor_p_millis = 0;
+  static unsigned long touch_p_millis = 0;
+  unsigned long i_touch = 40; // interval for Touchscreen
+  unsigned long i_sensor = 500; // interval Sensors
   
-  // Control Relais by name with [Name].on() // [Name].off()
-  //Fan.on();
-  //Heat.on();
-  //Move.on();
-  
+  if (millis() - sensor_p_millis >= i_sensor) {
+    // get Sensor Values and Check if there is a NaN
+    hum1 = dht_top.readHumidity();
+    temp1 = dht_top.readTemperature();
+    hum2 = dht_bot.readHumidity();
+    temp2= dht_bot.readTemperature();
+    bool read_error = false;
+    if (isnan(hum1) || isnan(temp1)) {
+      show_error("Top Sensor Failed");
+      read_error = true;
+    }
+    if (isnan(hum2) || isnan(temp2)) {
+      show_error("Bottom Sensor Failed");
+      read_error = true;
+    }
+    // check if greater or lower then temp_delta to turn on or off the Fan
+    if (!read_error){
+      float diff1 = temp1 - temp2;
+      float diff2 = temp2 - temp1;
+        if (diff1 > temp_delta || diff2 > temp_delta) {
+          Fan.on();} 
+        else{
+          Fan.off();}
+    // update temp and hum with mean values
+      update_temp((temp1 + temp2) / 2.0);
+      update_hum((hum1 + hum2) / 2.0);}
+      
+      sensor_p_millis = millis();
+  }
   // get touch info and scale it
-  TSPoint p = ts.getPoint();
-  pinMode(XM, OUTPUT);
-  pinMode(YP, OUTPUT);
-  if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-    // Zero is Top-Left Corner like the coordinates for drawing
-    p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.width());
-    p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.height());
-    
-    if (btn_plus.isPressed(p.y, p.x)) {
-      //increment tagettemp +0.1
-      target_temp = target_temp + 0.1;
-      update_target(target_temp);
-      }
-    if (btn_minus.isPressed(p.y, p.x)) {
-      //decrement tagettemp -0.1
-      target_temp = target_temp - 0.1;
-      update_target(target_temp);
-      }
-    if (btn_toggle.isPressed(p.y, p.x)) {
-      if (started == true) {
-        started = false;}
-      else if (started == false) {
-        started = true;}
-      check_started(started);
-}
-    
-    // just for check touch
-    /*tft.fillRect(5,120,60,29, BLACK); // Fill Black then write otherwise Values never disapear
-    tft.setCursor(5, 120); tft.setTextColor(GREEN); tft.setTextSize(2);
-    tft.print("X ");
-    tft.print(p.y);
-    tft.setCursor(5, 135);
-    tft.print("Y ");
-    tft.print(p.x);*/
-  };
-  delay(40); // just for testing, use millies() later?  
+  
+  if (millis() - touch_p_millis >= i_touch) {
+    TSPoint p = ts.getPoint();
+    pinMode(XM, OUTPUT);
+    pinMode(YP, OUTPUT);
+    if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+      p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.width());
+      p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.height());
+      if (btn_plus.isPressed(p.y, p.x)) {
+        //increment tagettemp +0.1
+        target_temp = target_temp + 0.1;
+        update_target(target_temp);}
+      if (btn_minus.isPressed(p.y, p.x)) {
+        //decrement tagettemp -0.1
+        target_temp = target_temp - 0.1;
+        update_target(target_temp);}
+      if (btn_toggle.isPressed(p.y, p.x)) {
+        started = !started;
+        check_started(started);
+        // delay to prevent a fast toggle while just press Start-Stop
+        delay(1000);}
+    };
+    touch_p_millis = millis();
+  }
+  // Move on or off
+  if (started == true){
+    Move.on();}
+  else {Move.off();}
 }
