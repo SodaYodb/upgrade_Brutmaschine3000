@@ -215,7 +215,7 @@ void loop() {
       show_error("Bottom Sensor Failed");
       read_error = true;
     }
-    // check if greater or lower then temp_delta to turn on or off the Fan
+    // ------------------------------------------------------------------------- FAN
     if (!read_error){
       float diff1 = temp1 - temp2;
       float diff2 = temp2 - temp1;
@@ -258,4 +258,6 @@ void loop() {
   if (started == true){
     Move.on();}
   else {Move.off();}
+  // ------------------------------------------------------------------------- HEAT
+  
 } // ------------------------------------------------------------------------- END VOID LOOP
