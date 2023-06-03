@@ -28,7 +28,7 @@ Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-// define sensors ------------------ SENSOR
+// ------------------------------------------------------------------------- SENSOR
 #define DHT1_PIN 31 // Top
 #define DHT2_PIN 33 // Bottom
 #define DHTTYPE DHT22
@@ -36,7 +36,7 @@ DHT dht_top(DHT1_PIN, DHTTYPE);
 DHT dht_bot(DHT2_PIN, DHTTYPE);
 float hum1, hum2, temp1, temp2;
 
-// define some colors -------------------- COLOR
+// ------------------------------------------------------------------------- COLOR
 #define BLACK   0x0000
 #define BLUE    0x001F
 #define RED     0xF800
@@ -52,7 +52,7 @@ float hum1, hum2, temp1, temp2;
 #define DECORATON_Color WHITE  // Change Color for Decorations here
 #define WARNING_Color RED
 
-// define relais -------------------- RELAIS
+// ------------------------------------------------------------------------- CLASS RELAIS
 class Relais{
   private:
     byte _pin;
@@ -75,7 +75,7 @@ Relais Fan(49);
 Relais Heat(51);
 Relais Move(53);
 
-// define buttons -------------------- TOUCH BUTTON
+// ------------------------------------------------------------------------- CLASS TOUCH BUTTON
 class TouchButton {
   private:
     int _x;
@@ -101,11 +101,14 @@ TouchButton btn_minus(0, 190, 60, 50); // Size of bottom left Box
 TouchButton btn_plus(260, 190, 60, 50); // Size of bottom right Box
 
 // some variables
+static unsigned long sensor_p_millis = 0; // don't edit
+static unsigned long touch_p_millis = 0; // don't edit
+
 bool started = false;
 float temp_delta = 1.0; // delta for turn on or off the Fan
-float target_temp = 31.0;
+float target_temp = 31.0; // Setup Target tempe you most use
 
-// ------------------------------------------------------------------
+// ------------------------------------------------------------------------- VOID SETUP
 void setup() {
   // init the Relais // default = LOW
   Fan.init();
@@ -125,7 +128,7 @@ void setup() {
   update_hum(100.00); // DUMMY provide value for update it on screen
   update_target(target_temp);
   check_started(started);
-} // END VOID SETUP --------------------------------------------------
+} // ------------------------------------------------------------------------- END VOID SETUP
 
 void build_gui(){
   // Display Size 320 widht in Rotation 3
@@ -148,7 +151,6 @@ void build_gui(){
   tft.print("HUMIDITY:");
 
   // Mid Section
-  
 
   // Bottom Section
   tft.drawLine(0, 190, 320, 190, DECORATON_Color);
@@ -161,50 +163,43 @@ void build_gui(){
   tft.print("+");
   tft.setCursor(65, 192); tft.setTextColor(DECORATON_Color); tft.setTextSize(2);
   tft.print("TARGET:");
-  
-  
-} // END BUILD_GUI SETUP ---------------------------------------------
+} // ------------------------------------------------------------------------- END BUILD_GUI SETUP
 
-// would it be more performant to save the old Value and write it in Black before write the new Value?
 void update_temp(float prov_temperature){
   tft.fillRect(15,20,69,21, BACKG_Color);
   tft.setCursor(15, 20); tft.setTextColor(NONEDIT_Color); tft.setTextSize(3);
-  tft.print(prov_temperature,1);
-}
+  tft.print(prov_temperature,1);}
+
 void update_hum(int prov_humidity){
   tft.fillRect(135,20,51,21, BACKG_Color);
   tft.setCursor(135, 20); tft.setTextColor(NONEDIT_Color); tft.setTextSize(3);
-  tft.print(prov_humidity);
-}
+  tft.print(prov_humidity);}
+
 void update_target(float prov_target){
   tft.fillRect(118,212,69,21, BACKG_Color);
   tft.setCursor(118, 212); tft.setTextColor(EDITABLE_Color); tft.setTextSize(3);
-  tft.print(prov_target,1);
-}
+  tft.print(prov_target,1);}
+  
 void check_started(bool is_started){
   tft.fillRect(227,13,87,21, BACKG_Color);
   tft.setCursor(227, 13); tft.setTextColor(EDITABLE_Color); tft.setTextSize(3);
   if(is_started == true){
-    tft.print("Stop");
-  }
+    tft.print("Stop");}
   else if(is_started == false){
-    tft.print("Start");
-  }
-}
+    tft.print("Start");}}
 
 void show_error(char* error_string){
   tft.fillRect(5,52,315,16, BACKG_Color);
   tft.setCursor(5, 52); tft.setTextColor(WARNING_Color); tft.setTextSize(2);
   tft.print(error_string);
-}
+  // just to make sure an message could be read while multiple messages should be shown
+  delay(500);}
 
 void loop() {
-  // for millies()
-  static unsigned long sensor_p_millis = 0;
-  static unsigned long touch_p_millis = 0;
   unsigned long i_touch = 40; // interval for Touchscreen
   unsigned long i_sensor = 500; // interval Sensors
-  
+
+  // ------------------------------------------------------------------------- SENSORS
   if (millis() - sensor_p_millis >= i_sensor) {
     // get Sensor Values and Check if there is a NaN
     hum1 = dht_top.readHumidity();
@@ -234,8 +229,8 @@ void loop() {
       
       sensor_p_millis = millis();
   }
-  // get touch info and scale it
   
+  // ------------------------------------------------------------------------- TOUCH
   if (millis() - touch_p_millis >= i_touch) {
     TSPoint p = ts.getPoint();
     pinMode(XM, OUTPUT);
@@ -263,4 +258,4 @@ void loop() {
   if (started == true){
     Move.on();}
   else {Move.off();}
-}
+} // ------------------------------------------------------------------------- END VOID LOOP
