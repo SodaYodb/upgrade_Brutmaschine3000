@@ -50,7 +50,7 @@ float hum1, hum2, temp1, temp2;
 #define EDITABLE_Color MAGENTA // Change Color for User editable Values here
 #define NONEDIT_Color CYAN     // Change Color for Non editable Values here
 #define DECORATON_Color WHITE  // Change Color for Decorations here
-#define WARNING_Color RED
+#define WARNING_Color RED      // Change Color for Error Msg here
 
 // ------------------------------------------------------------------------- CLASS RELAIS
 class Relais{
@@ -103,6 +103,11 @@ TouchButton btn_plus(260, 190, 60, 50); // Size of bottom right Box
 // some variables
 static unsigned long sensor_p_millis = 0; // don't edit
 static unsigned long touch_p_millis = 0; // don't edit
+char* last_error = "";
+
+float last_prov_temperature = 0.0; // don't delete
+float last_prov_target = 0.0; // don't delete
+int last_prov_humidity = 0; // don't delete
 
 bool started = false;
 float temp_delta = 1.0; // delta for turn on or off the Fan
@@ -131,8 +136,6 @@ void setup() {
 } // ------------------------------------------------------------------------- END VOID SETUP
 
 void build_gui(){
-  // Display Size 320 widht in Rotation 3
-  // Display Size 240 hight in Rotation 3
   tft.setRotation(3);  // 0-3
   tft.fillScreen(BACKG_Color); // Background Color for Display
 
@@ -166,34 +169,46 @@ void build_gui(){
 } // ------------------------------------------------------------------------- END BUILD_GUI SETUP
 
 void update_temp(float prov_temperature){
-  tft.fillRect(15,20,69,21, BACKG_Color);
-  tft.setCursor(15, 20); tft.setTextColor(NONEDIT_Color); tft.setTextSize(3);
-  tft.print(prov_temperature,1);}
+  tft.setCursor(15, 20); tft.setTextColor(BACKG_Color); tft.setTextSize(3);
+  tft.print(last_prov_temperature,1);
+  tft.setCursor(15, 20); tft.setTextColor(NONEDIT_Color);
+  tft.print(prov_temperature,1);
+  last_prov_temperature = prov_temperature;
+  }
 
 void update_hum(int prov_humidity){
-  tft.fillRect(135,20,51,21, BACKG_Color);
-  tft.setCursor(135, 20); tft.setTextColor(NONEDIT_Color); tft.setTextSize(3);
-  tft.print(prov_humidity);}
+  tft.setCursor(135, 20); tft.setTextColor(BACKG_Color); tft.setTextSize(3);
+  tft.print(last_prov_humidity);
+  tft.setCursor(135, 20); tft.setTextColor(NONEDIT_Color);
+  tft.print(prov_humidity);
+  last_prov_humidity = prov_humidity;
+  }
 
 void update_target(float prov_target){
-  tft.fillRect(118,212,69,21, BACKG_Color);
+  tft.setCursor(118, 212); tft.setTextColor(BACKG_Color); tft.setTextSize(3);
+  tft.print(last_prov_target,1);
   tft.setCursor(118, 212); tft.setTextColor(EDITABLE_Color); tft.setTextSize(3);
-  tft.print(prov_target,1);}
+  tft.print(prov_target,1);
+  last_prov_target = prov_target;
+  }
   
 void check_started(bool is_started){
   tft.fillRect(227,13,87,21, BACKG_Color);
   tft.setCursor(227, 13); tft.setTextColor(EDITABLE_Color); tft.setTextSize(3);
-  if(is_started == true){
+  if(is_started){
     tft.print("Stop");}
-  else if(is_started == false){
+  else {
     tft.print("Start");}}
 
 void show_error(char* error_string){
-  tft.fillRect(5,52,315,16, BACKG_Color);
-  tft.setCursor(5, 52); tft.setTextColor(WARNING_Color); tft.setTextSize(2);
+   if (strcmp(last_error, error_string) == 0) {
+    // If the current error is the same as the previous one, do nothing
+    return;}
+  tft.setCursor(5, 52); tft.setTextColor(BACKG_Color); tft.setTextSize(2);
+  tft.print(last_error);
+  tft.setCursor(5, 52); tft.setTextColor(WARNING_Color);
   tft.print(error_string);
-  // just to make sure an message could be read while multiple messages should be shown
-  delay(500);}
+  last_error = error_string;}
 
 void loop() {
   unsigned long i_touch = 40; // interval for Touchscreen
@@ -220,7 +235,7 @@ void loop() {
       float diff1 = temp1 - temp2;
       float diff2 = temp2 - temp1;
         if (diff1 > temp_delta || diff2 > temp_delta) {
-          Fan.on();} 
+          Fan.on();}
         else{
           Fan.off();}
     // update temp and hum with mean values
@@ -239,18 +254,16 @@ void loop() {
       p.y = map(p.y, TS_MINY, TS_MAXY, 0, tft.width());
       p.x = map(p.x, TS_MINX, TS_MAXX, 0, tft.height());
       if (btn_plus.isPressed(p.y, p.x)) {
-        //increment tagettemp +0.1
         target_temp = target_temp + 0.1;
         update_target(target_temp);}
       if (btn_minus.isPressed(p.y, p.x)) {
-        //decrement tagettemp -0.1
         target_temp = target_temp - 0.1;
         update_target(target_temp);}
       if (btn_toggle.isPressed(p.y, p.x)) {
         started = !started;
         check_started(started);
         // delay to prevent a fast toggle while just press Start-Stop
-        delay(1000);}
+        delay(500);}
     };
     touch_p_millis = millis();
   }
