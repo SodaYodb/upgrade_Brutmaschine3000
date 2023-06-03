@@ -75,7 +75,7 @@ Relais Fan(49);
 Relais Heat(51);
 Relais Move(53);
 
-// define buttons -------------------- RELAIS
+// define buttons -------------------- TOUCH BUTTON
 class TouchButton {
   private:
     int _x;
