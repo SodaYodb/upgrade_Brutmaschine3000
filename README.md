@@ -4,9 +4,10 @@
 - ~~var for Targettemp~~
 - ~~increment Targettemp by touch // btn_plus.isPressed~~
 - ~~decrement Targettemp by touch // btn_minus.isPressed~~
-- heating algorithm based on the set value
 - ~~var Start-Stop (bool)~~
-- Move.on() my Start=True
+- ~~Move.on() my Start=True~~
+- ~~implement millis()~~
+- heating algorithm based on the set value
 
 ### FEATURES LATER:
 - turn off all relais if box is open(ed)
