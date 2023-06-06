@@ -8,7 +8,7 @@
 - ~~Move.on() my Start=True~~
 - ~~implement millis()~~
 - ~~use the old value for screenupdate instead of draw rectangle~~
-- heating algorithm based on the set value
+- ~~heating algorithm based on the set value~~
 
 ### FEATURES LATER:
 - turn off all relais if box is open(ed)
