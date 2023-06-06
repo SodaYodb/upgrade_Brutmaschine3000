@@ -110,8 +110,19 @@ float last_prov_target = 0.0; // don't delete
 int last_prov_humidity = 0; // don't delete
 
 bool started = false;
+
+// -------------------------------------------------------------------------
 float temp_delta = 1.0; // delta for turn on or off the Fan
+// -------------------------------------------------------------------------
 float target_temp = 31.0; // Setup Target tempe you most use
+// -------------------------------------------------------------------------
+// var for PID
+float kp = 0.5;  // Proportional gain
+float ki = 0.2;  // Integral gain
+float kd = 0.1;  // Derivative gain
+float integral = 0.0;
+float prev_error = 0.0;
+
 
 // ------------------------------------------------------------------------- VOID SETUP
 void setup() {
@@ -120,8 +131,8 @@ void setup() {
   Heat.init();
   Move.init();
   
-  tft.reset(); // Clear Screen
-  // find correct identifier
+  tft.reset(); // Reset Screen
+
   uint16_t identifier = tft.readID();
   if(identifier==0x0101)
   {identifier=0x9341;}
@@ -150,7 +161,6 @@ void build_gui(){
   tft.print("TEMP:");
   tft.setCursor(105, 0);
   tft.setTextColor(DECORATON_Color);
-  tft.setTextSize(2);
   tft.print("HUMIDITY:");
 
   // Mid Section
@@ -202,7 +212,6 @@ void check_started(bool is_started){
 
 void show_error(char* error_string){
    if (strcmp(last_error, error_string) == 0) {
-    // If the current error is the same as the previous one, do nothing
     return;}
   tft.setCursor(5, 52); tft.setTextColor(BACKG_Color); tft.setTextSize(2);
   tft.print(last_error);
@@ -224,13 +233,11 @@ void loop() {
     bool read_error = false;
     if (isnan(hum1) || isnan(temp1)) {
       show_error("Top Sensor Failed");
-      read_error = true;
-    }
+      read_error = true;}
     if (isnan(hum2) || isnan(temp2)) {
       show_error("Bottom Sensor Failed");
-      read_error = true;
-    }
-    // ------------------------------------------------------------------------- FAN
+      read_error = true;}
+    // ------------------------------------------------------------------------- HEAT & FAN
     if (!read_error){
       float diff1 = temp1 - temp2;
       float diff2 = temp2 - temp1;
@@ -241,6 +248,16 @@ void loop() {
     // update temp and hum with mean values
       update_temp((temp1 + temp2) / 2.0);
       update_hum((hum1 + hum2) / 2.0);}
+    // simple PID 
+      float error = target_temp - (temp1 + temp2) / 2.0;
+      integral += error;
+      float derivative = error - prev_error;
+      float heat_value = kp * error + ki * integral + kd * derivative;
+      if (heat_value > temp_delta || diff1 > temp_delta || diff2 > temp_delta) {
+        Heat.on();} 
+      else {
+        Heat.off();}
+      prev_error = error;
       
       sensor_p_millis = millis();
   }
@@ -271,6 +288,4 @@ void loop() {
   if (started == true){
     Move.on();}
   else {Move.off();}
-  // ------------------------------------------------------------------------- HEAT
-  
 } // ------------------------------------------------------------------------- END VOID LOOP
